@@ -1,0 +1,28 @@
+#!/bin/bash
+cnt=0
+ProgName1="./$1"
+ProgName2="./$2"
+MakerName="./$3"
+
+g++ -o $1 "$1.cpp" 
+g++ -o $2 "$2.cpp" 
+g++ -o $3 "$3.cpp" 
+
+shift 3
+
+while [ 1 ] 
+do
+	let cnt=$cnt+1
+    rand=$RANDOM
+    echo "$cnt (seed: $rand)"
+	echo $@ $rand | ./$MakerName > checker.in
+	time ./$ProgName1 < checker.in > $ProgName1.out
+	time ./$ProgName2 < checker.in > $ProgName2.out
+
+	diff -bc $ProgName1.out $ProgName2.out
+	if [ "x$?" != "x0" ]
+	then
+        echo $rand
+		break
+	fi
+done

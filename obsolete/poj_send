@@ -1,0 +1,43 @@
+#! /bin/bash 
+username='xh_ymfoi'
+passwd='ymf_ymf'
+target='ymfoi'
+
+header_info="header.txt"
+output_file="/dev/null"
+site_ip=123.196.125.62
+site_name=poj.org
+site_addr="http://$site_name"
+login_addr="$site_addr/login"
+send_addr="$site_addr/send"
+status_addr="$site_addr/status"
+file_name="/home/ymf/pictures/IMG_0002.JPG"
+block_size="32768"
+
+cd /tmp
+rm send_*
+base64 $file_name > "raw_send"
+split "raw_send" -b $block_size 'send_'
+send_file_list=`ls send_*`
+
+
+curl "http://$site_ip/login"  -H "Host: $site_name" -e "$site_addr" -d "user_id1=$username&password1=$passwd&B1=login" -D "$header_info" > /dev/null
+
+masterid=`md5sum $file_name | sed "s/\(.\) \+.*$/\1/g"`
+
+curl "http://$site_ip/send"  -H \'Host: $site_name\' -e "$send_addr" -b "$header_info" \
+	--data-urlencode "to=$target" \
+	--data-urlencode "title=file_Mid_$masterid""_master_`echo $file_name | sed 's/.*\/\(.*\)/\1/g'`" \
+	--data-urlencode "content=" \
+	--data-urlencode "b1=Send" > /dev/null
+
+for single_file in $send_file_list
+
+do
+	curl "http://$site_ip/send"  -H "Host: $site_name" -e "$send_addr" -b "$header_info" \
+		--data-urlencode "to=$target" \
+		--data-urlencode "title=file_Mid_$masterid""_$single_file" \
+		--data-urlencode content@$single_file \
+		--data-urlencode "b1=Send" > /dev/null
+
+done

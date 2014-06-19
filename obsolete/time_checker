@@ -1,0 +1,23 @@
+#!/bin/bash -e
+cnt=0
+
+PROBNAME=$1
+shift 1
+MakerName="./"$PROBNAME"_maker"
+ProgName1="./$PROBNAME"
+ProgName2="./"$PROBNAME"_brute"
+
+while [ 1 ] 
+do
+	let cnt=$cnt+1
+	echo $cnt
+	echo $@ $RANDOM | ./$MakerName
+	time ./$ProgName1 > $ProgName1.out
+	time ./$ProgName2 > $ProgName2.out
+
+	diff -bc $ProgName1.out $ProgName2.out
+	if [ "x$?" != "x0" ]
+	then
+		break
+	fi
+done

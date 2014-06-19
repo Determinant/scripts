@@ -1,0 +1,51 @@
+#! /bin/bash
+conf_dir="$HOME/conf"
+[ -d "$conf_dir" ] || mkdir "$conf_dir"
+cd "$conf_dir"
+
+function checkout() {
+    echo "Backuping $@..."
+    local prefix="$1"
+	for dir in $@
+	do
+		new_name=$(echo $dir | sed 's/\//_/g').bak
+		sudo cp -rT "$dir" "$new_name"
+		sudo chown -R ymf:ymf "$new_name"
+		chmod -R u+r "$new_name"
+		chmod -R u+w "$new_name"
+	done
+}
+
+home_conf=(
+    ".bashrc"
+    ".vimrc"
+    ".Xresources"
+    ".kde4/share/config"
+    ".muttrc"
+    ".offlineimaprc"
+    ".mbsyncrc"
+    ".xinitrc"
+    ".mpdconf"
+    ".ncmpcpp"
+    ".config/fish/config.fish"
+    ".config/fish/functions"
+    ".config/newsbeuter/config"
+    ".config/newsbeuter/urls"
+    ".config/newsbeuter/config"
+    ".config/fontconfig/fonts.conf"
+    ".config/powerline"
+)
+
+sys_conf=(
+    "/etc/fstab"
+    "/etc/hosts"
+    "/usr/share/X11/xorg.conf.d/*"
+    "/usr/src/*/.config"
+    "/etc/X11/xorg.conf*"
+    "/var/lib/portage"
+    "/etc/portage"
+)
+
+for item in "${home_conf[@]}"; do checkout "$HOME/$item"; done
+for item in "${sys_conf[@]}"; do checkout "$item"; done
+

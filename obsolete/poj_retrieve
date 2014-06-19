@@ -1,0 +1,29 @@
+#!/bin/bash -e
+username='ymfoi'
+passwd='ymf_ymf'
+
+header_info="header.txt"
+output_file="/dev/null"
+site_ip=123.196.125.62
+site_name=poj.org
+site_addr="http://$site_name"
+login_addr="$site_addr/login"
+send_addr="$site_addr/send"
+status_addr="$site_addr/status"
+file_name="/home/ymf/pictures/olivia2.jpg"
+block_size="32768"
+
+max_size=65536
+mail_addr="$site_addr/mail?start=0&size=$max_size"
+status_addr="$site_addr/status"
+
+cd /tmp
+
+curl "http://$site_ip/login"  -H "Host: $site_name" -e "$site_addr" -d "user_id1=$username&password1=$passwd&B1=login" -D "$header_info" > /dev/null
+
+curl "$mail_addr" -b "$header_info"  > raw_mail
+
+cat raw_mail | sed 's/.*<a href=showmail?mail_id=\([0-9]\+\)>.*file_Mid_\([0-9a-z]\+\)_\([a-z_]\+\).*/\1 \2 \3/g' | grep '[0-9 ]\+send_' > part_list
+cat raw_mail | sed 's/.*<a href=showmail?mail_id=\([0-9]\+\)>.*file_Mid_\([0-9a-z]\+\)_master_\(.*\)<\/font>.*/master:\1 \2 \3/g' | grep 'master' > master_list
+
+

@@ -1,0 +1,47 @@
+#! /bin/bash
+function get_dir {
+    local uuid="$(sudo blkid | grep "^$1:.*UUID=" \
+                        | sed 's/[^:]*:.*UUID="\(.*\)" TYPE.*$/\1/g')"
+    if [ "$uuid" = "" ]; then
+        echo "Cannot parse the UUID: $string"
+        exit 1
+    fi
+    echo "/mnt/$(echo "$1" | sed 's/\/dev\/\(.*\)/\1/g')_$uuid"
+}
+
+function wrapped_mount {
+    dev_name="$1"
+    shift 1
+    dir="$(get_dir "$dev_name")"
+    sudo mkdir -p "$dir" && sudo mount "$dev_name" $@ "$dir"
+    echo "$dev_name is mounted at $dir"
+}
+
+function wrapped_umount {
+    dir="$(get_dir "$dev_name")"
+    sudo umount "$1" && sudo rmdir "$dir"
+    echo "$1 is umounted and $dir is removed"
+}
+
+OPTIND=1
+uflag=0
+while getopts ":u" opt; do
+    case "$opt" in
+        u)
+            uflag=1
+            ;;
+    esac
+done
+
+shift "$((OPTIND - 1))"
+dev_name="$1"
+shift 1
+if [ ! -b "$dev_name" ]; then
+    echo 'Device not found!'
+    exit 1
+fi
+if [ "$uflag" -eq 0 ]; then
+    wrapped_mount "$dev_name" $@
+else
+    wrapped_umount "$dev_name"
+fi

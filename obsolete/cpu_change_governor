@@ -1,0 +1,5 @@
+#! /bin/bash
+for i in 0 1 2 3
+do
+	sudo cpufreq-set -c $i -g $1
+done
