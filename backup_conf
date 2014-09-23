@@ -27,6 +27,7 @@ home_conf=(
     ".xinitrc"
     ".mpdconf"
     ".ncmpcpp"
+    ".tmux.conf"
     ".config/fish/config.fish"
     ".config/fish/functions"
     ".config/newsbeuter/config"

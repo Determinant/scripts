@@ -10,15 +10,15 @@ function get_dir {
 }
 
 function wrapped_mount {
-    dev_name="$1"
+    local dev_name="$1"
+    local dir="$(get_dir "$dev_name")"
     shift 1
-    dir="$(get_dir "$dev_name")"
     sudo mkdir -p "$dir" && sudo mount "$dev_name" $@ "$dir"
     echo "$dev_name is mounted at $dir"
 }
 
 function wrapped_umount {
-    dir="$(get_dir "$dev_name")"
+    local dir="$(get_dir "$dev_name")"
     sudo umount "$1" && sudo rmdir "$dir"
     echo "$1 is umounted and $dir is removed"
 }

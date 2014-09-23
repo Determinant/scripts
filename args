@@ -1,0 +1,3 @@
+#! /bin/bash
+printf "num of args: %d\n" "$#"
+printf "args: %s\n" "$@"

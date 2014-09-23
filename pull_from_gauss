@@ -1,0 +1,4 @@
+#! /bin/bash
+src="$2"
+dest="$1"
+rsync -avP -e 'ssh -p5566' "mfy43@gauss:/home/slhome/mfy43/$dest" "$src"
