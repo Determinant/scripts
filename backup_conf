@@ -18,16 +18,23 @@ function checkout() {
 
 home_conf=(
     ".bashrc"
+    ".bash_profile"
     ".vimrc"
     ".Xresources"
+    ".gtkrc-2.0"
     ".kde4/share/config"
     ".muttrc"
+    ".mutt_colors"
+    ".mutt"
     ".offlineimaprc"
     ".mbsyncrc"
     ".xinitrc"
     ".mpdconf"
     ".ncmpcpp"
     ".tmux.conf"
+    ".gitconfig"
+    ".asoundrc"
+    ".abcde.conf"
     ".config/fish/config.fish"
     ".config/fish/functions"
     ".config/newsbeuter/config"
@@ -35,6 +42,9 @@ home_conf=(
     ".config/newsbeuter/config"
     ".config/fontconfig/fonts.conf"
     ".config/powerline"
+    ".config/nvim/init.vim"
+    ".config/htop/htoprc"
+    ".config/user-dirs.dirs"
 )
 
 sys_conf=(
