@@ -6,14 +6,14 @@ cd "$conf_dir"
 function checkout() {
     echo "Backuping $@..."
     local prefix="$1"
-	for dir in $@
-	do
-		new_name=$(echo $dir | sed 's/\//_/g').bak
-		sudo cp -rT "$dir" "$new_name"
-		sudo chown -R ymf:ymf "$new_name"
-		chmod -R u+r "$new_name"
-		chmod -R u+w "$new_name"
-	done
+    for dir in $@
+    do
+        new_name=$(echo $dir | sed 's/\//_/g').bak
+        sudo cp -rT "$dir" "$new_name"
+        sudo chown -R ymf:ymf "$new_name"
+        chmod -R u+r "$new_name"
+        chmod -R u+w "$new_name"
+    done
 }
 
 home_conf=(
@@ -45,6 +45,7 @@ home_conf=(
     ".config/nvim/init.vim"
     ".config/htop/htoprc"
     ".config/user-dirs.dirs"
+    ".vim/colors/seoul256.vim"
 )
 
 sys_conf=(

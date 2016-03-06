@@ -1,4 +1,4 @@
-#! /bin/env python
+#! /bin/env python3
 
 from os import listdir, path, mkdir
 from subprocess import call
@@ -8,72 +8,133 @@ home_files = listdir(home_path)
 root_path = "/"
 root_files = listdir(root_path)
 
-multimedia_external_path = "/mnt/multimedia"
-assets_external_path = "/mnt/archive"
+multimedia_remote_path = "/mnt/multimedia"
+archive_remote_path = "/mnt/Mercury/Archive"
+conf_remote_path = path.join(home_path, "conf")
 home_prefix = "gentoo_ymf"
-root_prefix = "gentoo_root"
-vmware_prefix = "vmware"
+root_prefix = "archlinux_root_laptop"
 
-def sync_files(src, des, exactly_same):
-    args = ["-av"]
+def rsync(src, des, exactly_same, exclude=[], cwd=None):
+    args = ["-avP"]
     if exactly_same: args += ["--delete"]
     args += [src, des]
-
-    call(["rsync"] + args)
-
-def sync_with_external_disk(src, des, exclude = [], exactly_same = False):
-    if len(exclude):
-        for filename in listdir(src):
-            print filename
-            if filename in exclude: continue
-            sync_files(path.join(src, filename), path.join(des), exactly_same)
-    else:
-        sync_files(src, des, exactly_same)
+    args += ["--exclude={0}".format(p) for p in exclude]
+    print("executing rsync {0}".format(' '.join(args)))
+    call(["rsync"] + args, cwd=cwd)
 
 def sync_multimedia():
-    sync_with_external_disk(path.join(home_path, "multimedia/"), 
-                            multimedia_external_path,
-                            exclude = ["music"])
-def sync_vmware():
-    sync_with_external_disk(path.join(home_path, "vmware/"),
-                            path.join(assets_external_path, vmware_prefix),
-                            exactly_same = False)
-def sync_other_home_files():
-    des = path.join(assets_external_path, home_prefix)
+    rsync(path.join(home_path, "multimedia/"),
+                    multimedia_remote_path,
+                    exactly_same=False,
+                    exclude=["music"])
+def sync_home():
+    des = path.join(archive_remote_path, home_prefix)
     try:
         mkdir(des)
     except OSError:
         pass
-    sync_with_external_disk(home_path, des,
-            exclude = ["multimedia", "vmware"],
-            exactly_same = True)
+    rsync(home_path, des, exactly_same=True)
 
 def sync_system_root():
-    des = path.join(assets_external_path, root_prefix)
+    des = path.join(archive_remote_path, root_prefix)
     try:
         mkdir(des)
     except OSError:
         pass
-    sync_with_external_disk(root_path, des,
-            exclude = ["mnt", "tmp", "home", "proc", "dev", "sys", "lost+found"],
-            exactly_same = True)
+    rsync(root_path, des,
+            exactly_same=True,
+            exclude=["mnt", "tmp", "home",
+                    "proc", "dev", "sys",
+                    "lost+found"])
+
+_home_conf = [
+    ".bashrc",
+    ".bash_profile",
+    ".vimrc",
+    ".Xresources",
+    ".gtkrc-2.0",
+    ".kde4/share/config",
+    ".muttrc",
+    ".mutt_colors",
+    ".mutt",
+    ".offlineimaprc",
+    ".mbsyncrc",
+    ".xinitrc",
+    ".mpdconf",
+    ".ncmpcpp",
+    ".tmux.conf",
+    ".gitconfig",
+    ".asoundrc",
+    ".abcde.conf",
+    ".config/fish/config.fish",
+    ".config/fish/functions",
+    ".config/newsbeuter/config",
+    ".config/newsbeuter/urls",
+    ".config/newsbeuter/config",
+    ".config/fontconfig/fonts.conf",
+    ".config/powerline",
+    ".config/nvim/init.vim",
+    ".config/htop/htoprc",
+    ".config/user-dirs.dirs",
+    [".vim", "bundle"],
+]
+
+_sys_conf = [
+    "/etc/fstab",
+    "/etc/hosts",
+    "/usr/share/X11/xorg.conf.d/*",
+    "/usr/src/*/.config",
+    "/etc/X11/xorg.conf*",
+    "/var/lib/portage",
+    "/etc/portage",
+]
+
+def _sync_dotfiles(spec, des, cwd):
+    from glob import glob
+    import re
+    for entry in spec:
+        if type(entry) is str:
+            entry = [entry]
+        elif type(entry) is list:
+            pass
+        else:
+            raise "invalid spec"
+        if len(entry) < 1:
+            raise "invalid spec"
+        src = glob(path.join(cwd, entry[0]))
+        if len(src) < 1:
+            print("pattern {0} does not exist, skipping".format(entry[0]))
+            continue
+        for f in src:
+            des_sub = re.sub('/', '_', f) + '.bak'
+            if path.isdir(f):
+                f = f + '/'
+            rsync(f, path.join(des, des_sub),
+                    exactly_same=True, exclude=entry[1:], cwd=cwd)
+
+    
+
+def sync_dotfiles():
+    _sync_dotfiles(_home_conf, conf_remote_path, home_path)
+    _sync_dotfiles(_sys_conf, conf_remote_path, root_path)
+
 
 if __name__ == "__main__":
 
     import argparse
     
-    parser = argparse.ArgumentParser(description = "Backup the stuff on Ted-Laptop.")
+    parser = argparse.ArgumentParser(description = "Backup Ted-Laptop.")
     parser.add_argument('--system', '-s', action='store_true')
     parser.add_argument('--home', '-u', action='store_true')
     parser.add_argument('--multimedia', '-m', action='store_true')
-    parser.add_argument('--vmware', '-vm', action='store_true')
+    parser.add_argument('--dotfiles', '-d', action='store_true')
     parse_ret = parser.parse_args()
 
     if parse_ret.multimedia:
         sync_multimedia()
-    if parse_ret.vmware:
-        sync_vmware()
     if parse_ret.system:
         sync_system_root()
     if parse_ret.home:
-        sync_other_home_files()
+        sync_home()
+    if parse_ret.dotfiles:
+        sync_dotfiles()
