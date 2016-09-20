@@ -3,7 +3,7 @@
 from os import listdir, path, mkdir
 from subprocess import call
 
-home_path = "/home/ymf"
+home_path = "/home/ymf/"
 home_files = listdir(home_path)
 root_path = "/"
 root_files = listdir(root_path)
@@ -11,12 +11,12 @@ root_files = listdir(root_path)
 multimedia_remote_path = "/mnt/multimedia"
 archive_remote_path = "/mnt/Mercury/Archive"
 conf_remote_path = path.join(home_path, "conf")
-home_prefix = "gentoo_ymf"
+home_prefix = "home_laptop"
 root_prefix = "archlinux_root_laptop"
 
 def rsync(src, des, exactly_same, exclude=[], cwd=None):
     args = ["-avP"]
-    if exactly_same: args += ["--delete"]
+    if exactly_same: args += ["--delete", "--delete-excluded"]
     args += [src, des]
     args += ["--exclude={0}".format(p) for p in exclude]
     print("executing rsync {0}".format(' '.join(args)))
@@ -76,6 +76,7 @@ _home_conf = [
     ".config/nvim/init.vim",
     ".config/htop/htoprc",
     ".config/user-dirs.dirs",
+    ".config/nginx/*.conf",
     [".vim", "bundle"],
 ]
 
@@ -87,6 +88,7 @@ _sys_conf = [
     "/etc/X11/xorg.conf*",
     "/var/lib/portage",
     "/etc/portage",
+    "/etc/nginx/nginx.conf",
 ]
 
 def _sync_dotfiles(spec, des, cwd):

@@ -1,4 +1,4 @@
-#! /bin/env python
+#! /bin/env python2
 from os.path import join, isdir, basename, exists
 from os import listdir, mkdir
 from subprocess import PIPE, Popen
@@ -31,7 +31,7 @@ def convert_to_aac(path, fname, stderr_out, outdir):
     """
     outdir = outdir or './'
     cmd1 = ["avconv", "-y", "-i", path, "-f", "wav", "-"]
-    cmd2 = ["neroAacEnc", "-cbr", "192000", "-ignorelength", "-if", "-", "-of", join(outdir, fname + ".mp4")]
+    cmd2 = ["neroAacEnc", "-cbr", "192000", "-ignorelength", "-if", "-", "-of", join(outdir, fname + ".m4a")]
     return convert(stderr_out, cmdline1=cmd1, cmdline2=cmd2)
 
 std_meta = {"title", "artist", "year", "album", "genre",
@@ -73,7 +73,7 @@ def check_out_file(src_fpath, des_path):
     m = patt.match(fname)
     if m:
         print "found file:" + src_fpath + " should be copied to " + des_path
-        des_fpath = join(des_path, m.group(1) + ".mp4")
+        des_fpath = join(des_path, m.group(1) + ".m4a")
         if not exists(des_fpath): 
             convert_to_aac(src_fpath, m.group(1), None, des_path)
         copy_id3tag(src_fpath, des_fpath)
