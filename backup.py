@@ -17,7 +17,7 @@ root_prefix = "archlinux_root_laptop"
 def rsync(src, des, exactly_same, exclude=None, cwd=None, reverse=False):
     args = ["-avP"]
     if exactly_same:
-        args += ["--delete", "--delete-excluded"]
+        args += ["--delete"]
     args += [des, src] if reverse else [src, des]
     if exclude:
         args += ["--exclude={0}".format(p) for p in exclude]
@@ -119,9 +119,8 @@ def _sync_dotfiles(spec, des, cwd, reverse=False):
                 pass
             if path.isdir(f):
                 f = f + '/'
-            rsync(f, df,
-                    exactly_same=True,
-                    exclude=None if reverse else entry[1:],
+                df = df + '/'
+            rsync(f, df, exactly_same=True, exclude=entry[1:],
                     cwd=cwd, reverse=reverse)
 
 
