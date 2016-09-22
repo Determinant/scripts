@@ -1,6 +1,6 @@
 #! /bin/env python3
 
-from os import listdir, path, mkdir
+from os import listdir, path, mkdir, makedirs
 from subprocess import call
 
 home_path = "/home/ymf/"
@@ -14,11 +14,13 @@ conf_remote_path = path.join(home_path, "conf")
 home_prefix = "home_laptop"
 root_prefix = "archlinux_root_laptop"
 
-def rsync(src, des, exactly_same, exclude=[], cwd=None):
+def rsync(src, des, exactly_same, exclude=None, cwd=None, reverse=False):
     args = ["-avP"]
-    if exactly_same: args += ["--delete", "--delete-excluded"]
-    args += [src, des]
-    args += ["--exclude={0}".format(p) for p in exclude]
+    if exactly_same:
+        args += ["--delete", "--delete-excluded"]
+    args += [des, src] if reverse else [src, des]
+    if exclude:
+        args += ["--exclude={0}".format(p) for p in exclude]
     print("executing rsync {0}".format(' '.join(args)))
     call(["rsync"] + args, cwd=cwd)
 
@@ -91,7 +93,7 @@ _sys_conf = [
     "/etc/nginx/nginx.conf",
 ]
 
-def _sync_dotfiles(spec, des, cwd):
+def _sync_dotfiles(spec, des, cwd, reverse=False):
     from glob import glob
     import re
     for entry in spec:
@@ -108,18 +110,28 @@ def _sync_dotfiles(spec, des, cwd):
             print("pattern {0} does not exist, skipping".format(entry[0]))
             continue
         for f in src:
-            des_sub = re.sub('/', '_', f) + '.bak'
+#            des_sub = re.sub('/', '_', f) + '.bak'
+            des_sub = path.abspath(f)[1:]
+            df = path.join(des, des_sub)
+            try:
+                makedirs(path.dirname(df))
+            except OSError:
+                pass
             if path.isdir(f):
                 f = f + '/'
-            rsync(f, path.join(des, des_sub),
-                    exactly_same=True, exclude=entry[1:], cwd=cwd)
+            rsync(f, df,
+                    exactly_same=True,
+                    exclude=None if reverse else entry[1:],
+                    cwd=cwd, reverse=reverse)
 
-    
 
 def sync_dotfiles():
     _sync_dotfiles(_home_conf, conf_remote_path, home_path)
     _sync_dotfiles(_sys_conf, conf_remote_path, root_path)
 
+def sync_rdotfiles():
+    _sync_dotfiles(_home_conf, conf_remote_path, home_path, reverse=True)
+    _sync_dotfiles(_sys_conf, conf_remote_path, root_path, reverse=True)
 
 if __name__ == "__main__":
 
@@ -130,6 +142,7 @@ if __name__ == "__main__":
     parser.add_argument('--home', '-u', action='store_true')
     parser.add_argument('--multimedia', '-m', action='store_true')
     parser.add_argument('--dotfiles', '-d', action='store_true')
+    parser.add_argument('--rdotfiles', '-r', action='store_true')
     parse_ret = parser.parse_args()
 
     if parse_ret.multimedia:
@@ -140,3 +153,5 @@ if __name__ == "__main__":
         sync_home()
     if parse_ret.dotfiles:
         sync_dotfiles()
+    if parse_ret.rdotfiles:
+        sync_rdotfiles()
