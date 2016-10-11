@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: Build 35438 2014-10-25 15:33:44Z karl $
+# $Id: Build 40051 2016-03-17 01:20:14Z mojca $
 # Public domain.  Originally written many years ago by Sebastian Rahtz.
 # The basic idea is to run configure && make, but with a multitude of
 # environment variables to allow overriding everything.
@@ -18,6 +18,7 @@ cd $mydir || exit 1
 
 : ${TL_WORKDIR=Work}
 TL_INSTALL_DEST=/home/ymf/apps
+
 # allow override of install destination.
 if test -z "$TL_INSTALL_DEST"; then
   H=`pwd`
@@ -83,12 +84,14 @@ fi
 : ${TL_CONF_MISSING=--disable-missing}
 
 # default to static linking.
+#: ${TL_CONF_SHARED=--disable-shared}
 : ${TL_CONF_SHARED=--enable-shared}
 
 # allow override of xdvi toolkit, default to standard xaw.
 : ${TL_CONF_XDVI_TOOLKIT=--with-xdvi-x-toolkit=xaw}
 
 # allow adding arbitrary other configure args, after all the others.
+#: ${TL_CONFIGURE_ARGS=}
 : ${TL_CONFIGURE_ARGS=--disable-native-texlive-build --disable-xindy --without-x --with-system-poppler --with-system-libpng --with-system-libgs --with-system-gmp --with-system-cairo --with-system-pixman --with-system-freetype2 --with-system-libpaper --with-system-zlib --with-system-graphite2 --with-system-mpfr}
 
 # allow for doing stuff betwen configure and make.
@@ -150,6 +153,10 @@ if test -d "$bindir"; then
 fi
 
 status=`cat exitstatus.txt`
+if echo "$status" | egrep '^[0-9]+$' >/dev/null; then :; else
+  echo "$0: exitstatus.txt does not contain a number; disk full?" >&2
+  status=1
+fi
 echo "done (exit status $status)" `date` | tee -a build.log
 
 exit $status
