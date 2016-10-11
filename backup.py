@@ -79,6 +79,7 @@ _home_conf = [
     ".config/htop/htoprc",
     ".config/user-dirs.dirs",
     ".config/nginx/*.conf",
+    ".config/awesome",
     [".vim", "bundle"],
 ]
 
