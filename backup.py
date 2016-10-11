@@ -9,10 +9,10 @@ root_path = "/"
 root_files = listdir(root_path)
 
 multimedia_remote_path = "/mnt/multimedia"
-archive_remote_path = "/mnt/Mercury/Archive"
+archive_remote_path = "/mnt/Plutonium/Archive"
 conf_remote_path = path.join(home_path, "conf")
-home_prefix = "home_laptop"
-root_prefix = "archlinux_root_laptop"
+home_prefix = "home_desktop"
+root_prefix = "archlinux_root_desktop"
 
 def rsync(src, des, exactly_same, exclude=None, cwd=None, reverse=False):
     args = ["-avP"]
