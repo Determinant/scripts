@@ -55,6 +55,7 @@ _home_conf = [
     ".vimrc",
     ".Xresources",
     ".gtkrc-2.0",
+    ".gtkrc.mine",
     ".kde4/share/config",
     ".muttrc",
     ".mutt_colors",
@@ -80,6 +81,7 @@ _home_conf = [
     ".config/user-dirs.dirs",
     ".config/nginx/*.conf",
     ".config/awesome",
+    ".config/gtk-3.0/settings.ini",
     [".vim", "bundle"],
 ]
 
