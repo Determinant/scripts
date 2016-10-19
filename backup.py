@@ -82,6 +82,7 @@ _home_conf = [
     ".config/nginx/*.conf",
     ".config/awesome",
     ".config/gtk-3.0/settings.ini",
+    ".config/pulse/default.pa",
     [".vim", "bundle"],
 ]
 
