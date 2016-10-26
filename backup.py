@@ -2,48 +2,58 @@
 
 from os import listdir, path, mkdir, makedirs
 from subprocess import call
+from glob import glob
 
 home_path = "/home/ymf/"
+system_path = "/"
+backup_mountpoint = "/mnt"
+backup_drive = "Plutonium"
+multimedia_dir = "Multimedia"
+archive_dir = "Archive"
+conf_dir = "conf/fsroot"
+home_dest_dir = "home_desktop"
+sys_dest_dir = "archlinux_root_desktop"
+
 home_files = listdir(home_path)
-root_path = "/"
-root_files = listdir(root_path)
+sys_files = listdir(system_path)
 
-multimedia_remote_path = "/mnt/multimedia"
-archive_remote_path = "/mnt/Plutonium/Archive"
-conf_remote_path = path.join(home_path, "conf")
-home_prefix = "home_desktop"
-root_prefix = "archlinux_root_desktop"
+backup_prefix = path.join(backup_mountpoint, backup_drive)
+multimedia_backup_path = path.join(backup_prefix, multimedia_dir)
+archive_backup_path = path.join(backup_prefix, archive_dir)
+conf_path = path.join(home_path, conf_dir)
 
-def rsync(src, des, exactly_same, exclude=None, cwd=None, reverse=False):
+def rsync(src, des, exactly_same, exclude=None, cwd=None, options=None):
     args = ["-avP"]
     if exactly_same:
         args += ["--delete"]
-    args += [des, src] if reverse else [src, des]
+    args += [src, des]
     if exclude:
         args += ["--exclude={0}".format(p) for p in exclude]
+    if options:
+        args += options
     print("executing rsync {0}".format(' '.join(args)))
     call(["rsync"] + args, cwd=cwd)
 
 def sync_multimedia():
     rsync(path.join(home_path, "multimedia/"),
-                    multimedia_remote_path,
+                    multimedia_backup_path,
                     exactly_same=False,
                     exclude=["music"])
 def sync_home():
-    des = path.join(archive_remote_path, home_prefix)
+    des = path.join(archive_backup_path, home_dest_dir)
     try:
         mkdir(des)
     except OSError:
         pass
     rsync(home_path, des, exactly_same=True)
 
-def sync_system_root():
-    des = path.join(archive_remote_path, root_prefix)
+def sync_system():
+    des = path.join(archive_backup_path, sys_dest_dir)
     try:
         mkdir(des)
     except OSError:
         pass
-    rsync(root_path, des,
+    rsync(system_path, des,
             exactly_same=True,
             exclude=["mnt", "tmp", "home",
                     "proc", "dev", "sys",
@@ -97,8 +107,7 @@ _sys_conf = [
     "/etc/nginx/nginx.conf",
 ]
 
-def _sync_dotfiles(spec, des, cwd, reverse=False):
-    from glob import glob
+def _sync_dotfiles(spec, des, cwd):
     import re
     for entry in spec:
         if type(entry) is str:
@@ -111,12 +120,16 @@ def _sync_dotfiles(spec, des, cwd, reverse=False):
             raise "invalid spec"
         src = glob(path.join(cwd, entry[0]))
         if len(src) < 1:
-            print("pattern {0} does not exist, skipping".format(entry[0]))
+            print("pattern {0} does not exist, skipping"
+                    .format(path.join(cwd, entry[0])))
             continue
         for f in src:
 #            des_sub = re.sub('/', '_', f) + '.bak'
             des_sub = path.abspath(f)[1:]
             df = path.join(des, des_sub)
+            if not path.exists(df):
+                print("file {0} does not exist in the backup, skipping"
+                        .format(df))
             try:
                 makedirs(path.dirname(df))
             except OSError:
@@ -124,17 +137,16 @@ def _sync_dotfiles(spec, des, cwd, reverse=False):
             if path.isdir(f):
                 f = f + '/'
                 df = df + '/'
-            rsync(f, df, exactly_same=True, exclude=entry[1:],
-                    cwd=cwd, reverse=reverse)
-
+            rsync(f, df, exactly_same=True, exclude=entry[1:], cwd=cwd)
 
 def sync_dotfiles():
-    _sync_dotfiles(_home_conf, conf_remote_path, home_path)
-    _sync_dotfiles(_sys_conf, conf_remote_path, root_path)
+    _sync_dotfiles(_home_conf, conf_path, home_path)
+    _sync_dotfiles(_sys_conf, conf_path, system_path)
 
 def sync_rdotfiles():
-    _sync_dotfiles(_home_conf, conf_remote_path, home_path, reverse=True)
-    _sync_dotfiles(_sys_conf, conf_remote_path, root_path, reverse=True)
+    for src in glob(path.join(conf_path, '*')):
+        rsync(src, system_path, exactly_same=False,
+                options=["--no-perms", "--no-owner", "--no-group"])
 
 if __name__ == "__main__":
 
@@ -146,12 +158,43 @@ if __name__ == "__main__":
     parser.add_argument('--multimedia', '-m', action='store_true')
     parser.add_argument('--dotfiles', '-d', action='store_true')
     parser.add_argument('--rdotfiles', '-r', action='store_true')
+    parser.add_argument('--home-path', '-U', action='store')
+    parser.add_argument('--sys-path', '-S', action='store')
+    parser.add_argument('--backup-mountpoint', '-B', action='store')
+    parser.add_argument('--backup-drive', '-D', action='store')
+    parser.add_argument('--multimedia-dir', '-M', action='store')
+    parser.add_argument('--archive-dir', '-A', action='store')
+    parser.add_argument('--conf-dir', '-C', action='store')
+    parser.add_argument('--home-dest-dir', action='store')
+    parser.add_argument('--sys-dest-dir', action='store')
+
+
+
     parse_ret = parser.parse_args()
+
+    if parse_ret.home_path:
+        home_path = parse_ret.home_path
+    if parse_ret.sys_path:
+        system_path = parse_ret.sys_path
+    if parse_ret.backup_mountpoint:
+        backup_mountpoint = parse_ret.backup_mountpoint
+    if parse_ret.backup_drive:
+        backup_drive = parse_ret.backup_drive
+    if parse_ret.multimedia_dir:
+        multimedia_dir = parse_ret.multimedia_dir
+    if parse_ret.archive_dir:
+        archive_dir = parse_ret.archive_dir
+    if parse_ret.conf_dir:
+        conf_dir = parse_ret.conf_dir
+    if parse_ret.home_dest_dir:
+        home_dest_dir = parse_ret.home_dest_dir
+    if parse_ret.sys_dest_dir:
+        sys_dest_dir = parse_ret.sys_dest_dir
 
     if parse_ret.multimedia:
         sync_multimedia()
     if parse_ret.system:
-        sync_system_root()
+        sync_system()
     if parse_ret.home:
         sync_home()
     if parse_ret.dotfiles:
