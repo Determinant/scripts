@@ -79,6 +79,7 @@ _home_conf = [
     ".gitconfig",
     ".asoundrc",
     ".abcde.conf",
+    ".ssh/config",
     ".config/fish/config.fish",
     ".config/fish/functions",
     ".config/newsbeuter/config",
@@ -105,6 +106,7 @@ _sys_conf = [
     "/var/lib/portage",
     "/etc/portage",
     "/etc/nginx/nginx.conf",
+    "/etc/systemd/system/labreverse.service",
 ]
 
 def _sync_dotfiles(spec, des, cwd):
