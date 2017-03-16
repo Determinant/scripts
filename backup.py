@@ -45,7 +45,7 @@ def sync_home():
         mkdir(des)
     except OSError:
         pass
-    rsync(home_path, des, exactly_same=True)
+    rsync(home_path, des, exactly_same=True, exclude=[".local/share/Steam/"])
 
 def sync_system():
     des = path.join(archive_backup_path, sys_dest_dir)
@@ -62,6 +62,7 @@ def sync_system():
 _home_conf = [
     ".bashrc",
     ".bash_profile",
+    ".dircolors",
     ".vimrc",
     ".Xresources",
     ".gtkrc-2.0",
