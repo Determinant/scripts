@@ -81,6 +81,7 @@ _home_conf = [
     ".asoundrc",
     ".abcde.conf",
     ".ssh/config",
+    ".config/ranger/rc.conf",
     ".config/fish/config.fish",
     ".config/fish/functions",
     ".config/newsbeuter/config",
