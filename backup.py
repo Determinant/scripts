@@ -99,7 +99,7 @@ _home_conf = [
 ]
 
 _sys_conf = [
-    "/etc/fstab",
+#    "/etc/fstab",
     "/etc/hosts",
     "/usr/share/X11/xorg.conf.d/*",
     "/usr/src/*/.config",
