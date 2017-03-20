@@ -80,6 +80,7 @@ _home_conf = [
     ".gitconfig",
     ".asoundrc",
     ".abcde.conf",
+    [".weechat", "logs"],
     ".ssh/config",
     ".config/ranger/",
     ".config/fish/config.fish",
