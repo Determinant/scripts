@@ -90,7 +90,7 @@ _home_conf = [
     ".config/newsbeuter/config",
     ".config/fontconfig/fonts.conf",
     ".config/powerline",
-    ".config/nvim/init.vim",
+    ".config/nvim/",
     ".config/htop/htoprc",
     ".config/user-dirs.dirs",
     ".config/nginx/*.conf",
