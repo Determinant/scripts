@@ -82,7 +82,7 @@ _home_conf = [
     ".abcde.conf",
     [".weechat", "logs"],
     ".ssh/config",
-    ".config/ranger/",
+    ".config/ranger/rc.conf",
     ".config/fish/config.fish",
     ".config/fish/functions",
     ".config/newsbeuter/config",
