@@ -45,7 +45,13 @@ def sync_home():
         mkdir(des)
     except OSError:
         pass
-    rsync(home_path, des, exactly_same=True, exclude=[".local/share/Steam/"])
+    rsync(home_path, des, exactly_same=True,
+        exclude=[".local/share/Steam/",
+                ".stack",
+                ".rustup",
+                ".cache",
+                ".cargo",
+                ".config/google-chrome"])
 
 def sync_system():
     des = path.join(archive_backup_path, sys_dest_dir)
@@ -57,7 +63,7 @@ def sync_system():
             exactly_same=True,
             exclude=["mnt", "tmp", "home",
                     "proc", "dev", "sys",
-                    "lost+found"])
+                    "lost+found", "srv/nfs4"])
 
 _home_conf = [
     ".bashrc",
@@ -82,11 +88,12 @@ _home_conf = [
     ".gitconfig",
     ".asoundrc",
     ".abcde.conf",
-    [".weechat", "logs"],
+    [".weechat", "logs", "sec.conf", "weechat.log"],
     ".ssh/config",
     ".config/fcitx/config",
     ".config/fcitx/rime/*.yaml",
     ".config/fcitx/skin/dark/fcitx_skin.conf",
+    ".config/mimeapps.list",
     ".config/ranger/rc.conf",
     ".config/fish/config.fish",
     ".config/fish/functions",
@@ -102,6 +109,9 @@ _home_conf = [
     ".config/awesome",
     ".config/gtk-3.0/settings.ini",
     ".config/pulse/default.pa",
+    ".config/compton.conf",
+    ".config/systemd/user/mpd.service",
+    ".config/systemd/user/mpd_trigger.service",
     [".vim", "bundle"],
 ]
 

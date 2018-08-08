@@ -1,6 +1,6 @@
 #! /bin/env python2
 from os.path import join, isdir, basename, exists
-from os import listdir, mkdir
+from os import listdir, mkdir, stat
 from subprocess import PIPE, Popen
 from sys import stdout
 from mutagen.flac import FLAC
@@ -13,9 +13,9 @@ def convert(stderr_out, cmdline1=None, cmdline2=None):
     executes audio conversion pipeline command
     """
     if cmdline1 is not None and cmdline2 is not None:
-        print cmdline1
+        print(cmdline1)
         p1 = Popen(cmdline1, stdout=PIPE, stderr=stderr_out)
-        print p1.stdout
+        print(p1.stdout)
         p2 = Popen(cmdline2, stdin=p1.stdout, stdout=PIPE, stderr=stderr_out)
         p2.communicate()
         return not p2.returncode
@@ -31,7 +31,8 @@ def convert_to_aac(path, fname, stderr_out, outdir):
     """
     outdir = outdir or './'
     cmd1 = ["avconv", "-y", "-i", path, "-f", "wav", "-"]
-    cmd2 = ["neroAacEnc", "-cbr", "192000", "-ignorelength", "-if", "-", "-of", join(outdir, fname + ".m4a")]
+    outfile = join(outdir, fname + ".m4a")
+    cmd2 = ["neroAacEnc", "-cbr", "192000", "-ignorelength", "-if", "-", "-of", outfile]
     return convert(stderr_out, cmdline1=cmd1, cmdline2=cmd2)
 
 std_meta = {"title", "artist", "year", "album", "genre",
@@ -74,13 +75,15 @@ def check_out_file(src_fpath, des_path):
     if m:
         print "found file:" + src_fpath + " should be copied to " + des_path
         des_fpath = join(des_path, m.group(1) + ".m4a")
-        if not exists(des_fpath): 
+        if not exists(des_fpath):
             convert_to_aac(src_fpath, m.group(1), None, des_path)
         copy_id3tag(src_fpath, des_fpath)
 
-def walk_directory(src_path, des_path):
+def walk_directory(src_path, des_path, des_ino):
     dir_list = listdir(src_path)
     for f in dir_list:
+        if stat(f).st_ino == des_ino:
+            continue # skip the destination dir
         src_fpath = join(src_path, f)
         if isdir(src_fpath):
             des_fpath = join(des_path, f)
@@ -89,10 +92,13 @@ def walk_directory(src_path, des_path):
         else:
             check_out_file(src_fpath, des_path)
 
+def escape_space(path):
+    return path
+#    return path.replace(' ', '\ ')
 if len(sys.argv) < 2: exit()
 
-src_path = sys.argv[1]
-des_path = sys.argv[2]
+src_path = escape_space(sys.argv[1])
+des_path = escape_space(sys.argv[2])
 
 touch_dir(des_path)
-walk_directory(src_path, des_path)
+walk_directory(src_path, des_path, stat(des_path).st_ino)
