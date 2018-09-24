@@ -51,6 +51,7 @@ def sync_home():
                 ".rustup",
                 ".cache",
                 ".cargo",
+                ".wine",
                 ".config/google-chrome"])
 
 def sync_system():
