@@ -3,12 +3,12 @@ pkgname="$1"
 
 function getinfo() {
     local pkgname="$1"
-    curl "https://aur.archlinux.org/rpc/?v=5&type=info&arg[]=$pkgname"
+    curl -G "https://aur.archlinux.org/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
 }
 
 function getmyinfo() {
     local pkgname="$1"
-    curl "https://aur.tedyin.com/rpc/?v=5&type=info&arg[]=$pkgname"
+    curl -Gv "https://aur.tedyin.com/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
 }
 
 function isnull() {
@@ -46,6 +46,7 @@ function getpkg() {
     local pkgbase="$1"
     [[ -d "$1" ]] && {
         echo "$pkgbase already exists."
+        cd "$pkgbase"; git pull upstream master; git push origin master; cd ..
         return 0
     }
     echo "$pkgbase: fetching..."
@@ -66,7 +67,7 @@ function _getallpkg() {
         IFS="$OIFS"
     }
     for p in "${deps[@]}"; do
-        pacman -Ss "$p" > /dev/null 2>&1 && {
+        pacman -Ss "^${p//+/\\+}$" > /dev/null 2>&1 && {
             echo "$p is already in ABS"
             continue
         }
@@ -80,7 +81,7 @@ function getallpkg() {
     local info="$(getinfo $pkgname)"
     local replicate=1
     if isnull "$info"; then
-        echo "Not found in the official AUR, trying Ted's AUR..."
+        echo "$pkgname not found in the official AUR, trying Ted's AUR..."
         info="$(getmyinfo $pkgname)"
         replicate=0
         if isnull "$info"; then
