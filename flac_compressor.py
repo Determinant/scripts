@@ -82,13 +82,13 @@ def check_out_file(src_fpath, des_path):
 def walk_directory(src_path, des_path, des_ino):
     dir_list = listdir(src_path)
     for f in dir_list:
-        if stat(f).st_ino == des_ino:
-            continue # skip the destination dir
         src_fpath = join(src_path, f)
+        if stat(src_fpath).st_ino == des_ino:
+            continue # skip the destination dir
         if isdir(src_fpath):
             des_fpath = join(des_path, f)
             touch_dir(des_fpath)
-            walk_directory(src_fpath, des_fpath)
+            walk_directory(src_fpath, des_fpath, des_ino)
         else:
             check_out_file(src_fpath, des_path)
 

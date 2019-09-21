@@ -46,13 +46,15 @@ def sync_home():
     except OSError:
         pass
     rsync(home_path, des, exactly_same=True,
-        exclude=[".local/share/Steam/",
+        exclude=["gdrive/",
+                ".local/share/Steam/",
                 ".stack",
                 ".rustup",
                 ".cache",
                 ".cargo",
                 ".wine",
-                ".config/google-chrome"])
+                ".config/google-chrome",
+                ".npm"])
 
 def sync_system():
     des = path.join(archive_backup_path, sys_dest_dir)
