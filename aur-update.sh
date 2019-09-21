@@ -8,7 +8,7 @@ function getinfo() {
 
 function getmyinfo() {
     local pkgname="$1"
-    curl -Gv "https://aur.tedyin.com/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
+    curl -G "https://aur.tedyin.com/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
 }
 
 function isnull() {
@@ -76,6 +76,8 @@ function _getallpkg() {
     done
 }
 
+declare -A visited
+
 function getallpkg() {
     local pkgname="$1"
     local info="$(getinfo $pkgname)"
@@ -90,8 +92,13 @@ function getallpkg() {
         fi
     fi
     local pkgbase=$(getbase "$info")
+    if [[ "${visited[$pkgbase]}" == 1 ]]; then
+        echo "$pkgname: already visited"
+        return
+    fi
     echo "$pkgname: $pkgbase"
     [[ $replicate == 1 ]] && { getpkg "$pkgbase" || return; }
+    visited[$pkgbase]=1
     _getallpkg "$(getdeps "$info")" Depends
     _getallpkg "$(getmakedeps "$info")" MakeDepends
     _getallpkg "$(getcheckdeps "$info")" CheckDepends
