@@ -6,7 +6,7 @@ from glob import glob
 
 home_path = "/home/ymf/"
 system_path = "/"
-backup_mountpoint = "/mnt"
+backup_mountpoint = "root@pandora:/mnt"
 backup_drive = "Plutonium"
 multimedia_dir = "Multimedia"
 archive_dir = "Archive"
@@ -23,7 +23,7 @@ archive_backup_path = path.join(backup_prefix, archive_dir)
 conf_path = path.join(home_path, conf_dir)
 
 def rsync(src, des, exactly_same, exclude=None, cwd=None, options=None):
-    args = ["-avP"]
+    args = ["-avHAXP"]
     if exactly_same:
         args += ["--delete"]
     args += [src, des]
