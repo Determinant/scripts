@@ -8,6 +8,7 @@ rcs=(
     .config/fish/
     .config/nvim/
     .tmux.conf
+    .tmux/
     .gitconfig
     .vim/
     .vimrc
