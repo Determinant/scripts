@@ -87,6 +87,7 @@ _home_conf = [
     ".xprofile",
     ".mpdconf",
     ".ncmpcpp",
+    ".tmux",
     ".tmux.conf",
     ".gitconfig",
     ".asoundrc",
@@ -115,7 +116,7 @@ _home_conf = [
     ".config/compton.conf",
     ".config/systemd/user/mpd.service",
     ".config/systemd/user/mpd_trigger.service",
-    [".vim", "bundle"],
+    [".vim", "dein/repos", "dein/.cache"],
 ]
 
 _sys_conf = [
