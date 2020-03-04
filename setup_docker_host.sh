@@ -125,8 +125,12 @@ if [[ ! -d "$KEYDIR" ]]; then
     cd -
 fi
 
+sudo add-apt-repository -y ppa:neovim-ppa/stable
 sudo apt-get -y update
-sudo apt-get -y install neovim docker.io tmux fish
+# dev env
+sudo apt-get -y install neovim python3-pip python-pip tmux fish rsync git
+# docker
+sudo apt-get -y install docker.io
 
 sudo useradd ymf -m -s /bin/bash
 sudo mkdir -pm 700 /root/.ssh/
