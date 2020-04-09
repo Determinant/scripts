@@ -6,7 +6,7 @@ from glob import glob
 
 home_path = "/home/ymf/"
 system_path = "/"
-backup_mountpoint = "root@pandora:/mnt"
+backup_mountpoint = "rsync://root@10.0.0.2:/mnt/"
 backup_drive = "Plutonium"
 multimedia_dir = "Multimedia"
 archive_dir = "Archive"
@@ -23,16 +23,17 @@ archive_backup_path = path.join(backup_prefix, archive_dir)
 conf_path = path.join(home_path, conf_dir)
 
 def rsync(src, des, exactly_same, exclude=None, cwd=None, options=None):
-    args = ["-avHAXP"]
+    args = ["-avHAXP"]  # , "-e", "ssh -vv"]
     if exactly_same:
-        args += ["--delete"]
+        args += ["--delete", "--delete-excluded"]
     args += [src, des]
     if exclude:
         args += ["--exclude={0}".format(p) for p in exclude]
     if options:
         args += options
-    print("executing rsync {0}".format(' '.join(args)))
-    call(["rsync"] + args, cwd=cwd)
+    args = ["rsync"] + args
+    print("executing {0}".format(' '.join(args)))
+    call(args, cwd=cwd)
 
 def sync_multimedia():
     rsync(path.join(home_path, "multimedia/"),
@@ -46,15 +47,16 @@ def sync_home():
     except OSError:
         pass
     rsync(home_path, des, exactly_same=True,
-        exclude=["gdrive/",
-                ".local/share/Steam/",
-                ".stack",
-                ".rustup",
-                ".cache",
-                ".cargo",
-                ".wine",
-                ".config/google-chrome",
-                ".npm"])
+        exclude=["/gdrive/",
+                "/.local/share/Steam/",
+                "/.local/share/wineprefixes",
+                "/.stack",
+                "/.rustup",
+                "/.cache",
+                "/.cargo",
+                "/.wine",
+                "/.config/google-chrome",
+                "/.npm"])
 
 def sync_system():
     des = path.join(archive_backup_path, sys_dest_dir)
@@ -64,9 +66,9 @@ def sync_system():
         pass
     rsync(system_path, des,
             exactly_same=True,
-            exclude=["mnt", "tmp", "home",
-                    "proc", "dev", "sys",
-                    "lost+found", "srv/nfs4"])
+            exclude=["/mnt", "/tmp", "/home",
+                    "/proc", "/dev", "/sys",
+                    "/lost+found", "/srv/nfs4"])
 
 _home_conf = [
     ".bashrc",
@@ -116,6 +118,7 @@ _home_conf = [
     ".config/compton.conf",
     ".config/systemd/user/mpd.service",
     ".config/systemd/user/mpd_trigger.service",
+    ".config/mimeapps.list",
     [".vim", "dein/repos", "dein/.cache"],
 ]
 
