@@ -1,2 +1,2 @@
 #!/bin/bash
-./configure --prefix=/home/ymf/apps/ --enable-libfdk-aac --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libxvid --enable-gpl --enable-nonfree
+./configure --prefix=/home/ymf/apps/ --disable-libfdk-aac --enable-libmp3lame --enable-libx264 --enable-libx265 --enable-libxvid --enable-gpl --enable-nonfree

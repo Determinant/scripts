@@ -1,14 +1,13 @@
 #!/bin/bash -e
-pkgname="$1"
 
 function getinfo() {
     local pkgname="$1"
-    curl -G "https://aur.archlinux.org/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
+    curl -G "https://aur.archlinux.org/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname" $CURL_FLAGS
 }
 
 function getmyinfo() {
     local pkgname="$1"
-    curl -G "https://aur.tedyin.com/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname"
+    curl -G "https://aur.tedyin.com/rpc/" --data-urlencode "v=5" --data-urlencode "type=info" --data-urlencode "arg[]=$pkgname" $CURL_FLAGS
 }
 
 function isnull() {
@@ -104,4 +103,6 @@ function getallpkg() {
     _getallpkg "$(getcheckdeps "$info")" CheckDepends
 }
 
-getallpkg $pkgname
+for pkgname in "$@"; do
+    getallpkg "$pkgname"
+done
