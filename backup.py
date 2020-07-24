@@ -50,6 +50,7 @@ def sync_home():
         exclude=["/gdrive/",
                 "/.local/share/Steam/",
                 "/.local/share/wineprefixes",
+                "/.local/share/steam-remote",
                 "/.stack",
                 "/.rustup",
                 "/.cache",
@@ -89,7 +90,6 @@ _home_conf = [
     ".xprofile",
     ".mpdconf",
     ".ncmpcpp",
-    ".tmux",
     ".tmux.conf",
     ".gitconfig",
     ".asoundrc",
@@ -123,7 +123,6 @@ _home_conf = [
 ]
 
 _sys_conf = [
-#    "/etc/fstab",
     "/etc/hosts",
     "/usr/share/X11/xorg.conf.d/*",
     "/usr/src/*/.config",
@@ -131,7 +130,8 @@ _sys_conf = [
     "/var/lib/portage",
     "/etc/portage",
     "/etc/nginx/nginx.conf",
-    "/etc/systemd/system/labreverse.service",
+    "/etc/iptables/iptables.rules"
+    "/etc/sysctl.d/*.conf"
 ]
 
 def _sync_dotfiles(spec, des, cwd):
