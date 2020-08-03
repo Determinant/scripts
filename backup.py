@@ -48,6 +48,7 @@ def sync_home():
         pass
     rsync(home_path, des, exactly_same=True,
         exclude=["/gdrive/",
+                "/pandora/",
                 "/.local/share/Steam/",
                 "/.local/share/wineprefixes",
                 "/.local/share/steam-remote",
